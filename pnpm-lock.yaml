@@ -1,12 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@chainlink/contracts': ^0.4.1
   '@ethersproject/abi': ^5.0.0
   '@ethersproject/bytes': ^5.0.0
   '@ethersproject/providers': ^5.0.0
   '@nomiclabs/hardhat-ethers': ^2.0.0
   '@nomiclabs/hardhat-etherscan': ^3.0.0
   '@nomiclabs/hardhat-waffle': ^2.0.0
+  '@openzeppelin/contracts': ^4.6.0
   '@typechain/ethers-v5': ^7.0.1
   '@typechain/hardhat': ^2.3.0
   '@types/chai': ^4.2.21
@@ -37,12 +39,14 @@ specifiers:
   typescript: ^4.5.2
 
 devDependencies:
+  '@chainlink/contracts': 0.4.1
   '@ethersproject/abi': 5.6.2
   '@ethersproject/bytes': 5.6.1
   '@ethersproject/providers': 5.6.7
   '@nomiclabs/hardhat-ethers': 2.0.6_ethers@5.6.7+hardhat@2.9.6
   '@nomiclabs/hardhat-etherscan': 3.0.3_hardhat@2.9.6
   '@nomiclabs/hardhat-waffle': 2.0.3_evg2bngtqsz6z2z72sef2qgpba
+  '@openzeppelin/contracts': 4.6.0
   '@typechain/ethers-v5': 7.2.0_wr3egzbnzxzqwbzq3k6iveyole
   '@typechain/hardhat': 2.3.1_yhu2256umvu7qnwi6gaqfipdau
   '@types/chai': 4.3.1
@@ -99,6 +103,10 @@ packages:
       '@babel/helper-validator-identifier': 7.16.7
       chalk: 2.4.2
       js-tokens: 4.0.0
+    dev: true
+
+  /@chainlink/contracts/0.4.1:
+    resolution: {integrity: sha512-eC8biY6Ks8k9kZKVt5305veCP3z57yyiy6Os5aR6auta6Bp34xWQ/s4qvrifcW4FNgWw1HJPwMPXDGfiehcLjg==}
     dev: true
 
   /@cspotcode/source-map-support/0.8.1:
@@ -738,6 +746,10 @@ packages:
       ethereum-waffle: 3.4.4_typescript@4.6.4
       ethers: 5.6.7
       hardhat: 2.9.6_chai@4.3.6
+    dev: true
+
+  /@openzeppelin/contracts/4.6.0:
+    resolution: {integrity: sha512-8vi4d50NNya/bQqCmaVzvHNmwHvS0OBKb7HNtuNwEE3scXWrP31fKQoGxNMT+KbzmrNZzatE3QK5p2gFONI/hg==}
     dev: true
 
   /@resolver-engine/core/0.3.3:
