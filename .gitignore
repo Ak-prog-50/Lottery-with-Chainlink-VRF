@@ -1,3 +1,4 @@
+deployments/localhost
 node_modules
 .env
 coverage
