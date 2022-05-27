@@ -1,1 +1,1 @@
-export const MIN_DELAY = 180
+export const MIN_DELAY = 100  //100 seconds
