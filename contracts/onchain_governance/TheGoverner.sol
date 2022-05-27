@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.so
 
 contract TheGovernor is Governor, GovernorSettings, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
     constructor(
-            IVotes _token, 
+            IVotes _token, // IVotes vairable is from GovernorVotes.sol
             TimelockController _timelock,
             uint256 _votingDelay, // 6545 ( 1 day ) //* The votingDelay can delay the start of the vote. This must be considered when setting the voting duration compared to the voting delay.
             uint256 _votingPeriod, // 45818  (1 week)
