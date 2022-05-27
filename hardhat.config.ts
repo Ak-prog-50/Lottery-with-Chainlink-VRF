@@ -6,7 +6,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
-import 'hardhat-deploy';
+import "hardhat-deploy";
 
 dotenv.config();
 
@@ -25,13 +25,20 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.9",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
+    compilers: [
+      {
+        version: "0.8.9",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
       },
-    },
+      {
+        version: "0.6.6"
+      }
+    ],
   },
   networks: {
     ganache: {
@@ -47,15 +54,15 @@ const config: HardhatUserConfig = {
   },
   namedAccounts: {
     deployer: {
-      default: 0
+      default: 0,
     },
     guy1: {
-      default: 1
+      default: 1,
     },
     guy2: {
-      default: 2
-    }
-  }
+      default: 2,
+    },
+  },
 };
 
 export default config;
