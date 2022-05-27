@@ -12,7 +12,7 @@ contract TheGovernor is Governor, GovernorSettings, GovernorCountingSimple, Gove
     constructor(
             IVotes _token, 
             TimelockController _timelock,
-            uint256 _votingDelay, // 6545 ( 1 day )
+            uint256 _votingDelay, // 6545 ( 1 day ) //* The votingDelay can delay the start of the vote. This must be considered when setting the voting duration compared to the voting delay.
             uint256 _votingPeriod, // 45818  (1 week)
             uint8 _quorumFraction, // 4 
             uint256 _propsalThreshold // 0
