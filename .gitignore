@@ -1,4 +1,5 @@
 deployments/localhost
+deployments/ganache
 node_modules
 .env
 coverage
