@@ -17,4 +17,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default func;// export default func; //can use whatever name in here. Hardhat deploy will import the export as "func"
-func.tags = ["Timelock"];
+func.tags = ["TimeLock"];
