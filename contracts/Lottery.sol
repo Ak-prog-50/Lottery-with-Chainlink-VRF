@@ -53,9 +53,6 @@ contract Lottery is VRFConsumerBaseV2 {
         s_lotteryState = LotteryState.CLOSED; //* default lottery state is closed
         s_subscriptionId = _subscriptionId;
         i_vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
-        if (_subscriptionId == 0) {
-            createNewSubscription();
-        }
     }
 
     // onlyOwner modifier
@@ -68,13 +65,6 @@ contract Lottery is VRFConsumerBaseV2 {
     modifier checkOpened() {
         if (s_lotteryState != LotteryState.OPEN) revert Lottery__LotteryNotOpen();
         _;
-    }
-
-    function createNewSubscription() private onlyOwner {
-        address[] memory consumers = new address[](1);
-        consumers[0] = address(this);
-        s_subscriptionId = i_vrfCoordinator.createSubscription();
-        i_vrfCoordinator.addConsumer(s_subscriptionId, consumers[0]);
     }
 
     function getEntranceFee() public view returns (uint256) {
