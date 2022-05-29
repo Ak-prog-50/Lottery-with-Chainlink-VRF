@@ -42,7 +42,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     ? 1
     : VERIFICATION_BLOCK_CONFIRMATIONS
 
-    console.log("\n\tSubscriptionId", subscriptionId, "\n")
+    console.log("\n\tSubscriptionId", subscriptionId, subscriptionId._hex, "\n")
     const args = [priceFeedAddr, vrfCoordinatorAddr, entranceFeeInUSD, subscriptionId]
 
     const lottery = await deploy("Lottery", {
