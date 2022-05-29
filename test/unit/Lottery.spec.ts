@@ -78,7 +78,7 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
         // simulate callback from the oracle network
         await expect(
           vrfCoordinatorV2Mock.fulfillRandomWords(s_requestId, lottery.address)
-        ).to.emit(lottery, "ReturnedRandomness");
+        ).to.emit(lottery, "WinnerGotMoney");
         //   const som = await vrfCoordinatorV2Mock.fulfillRandomWords(s_requestId, lottery.address)
         //   const somtx = await som.wait(1)
         //   console.log("\n",somtx)
