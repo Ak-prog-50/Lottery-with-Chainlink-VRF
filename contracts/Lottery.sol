@@ -17,6 +17,7 @@ contract Lottery is VRFConsumerBaseV2 {
 
     address public immutable i_owner;
     int8 public immutable i_entranceFeeInUsd;
+    VRFCoordinatorV2Interface immutable i_vrfCoordinator; // default visibility is internal in vars.
     
     mapping(address => uint256) public s_addressToAmountDeposited;
     address[] public s_participants;
@@ -25,8 +26,7 @@ contract Lottery is VRFConsumerBaseV2 {
     uint64 s_subscriptionId;
     LotteryState public s_lotteryState;
     AggregatorV3Interface internal s_priceFeed;
-
-    VRFCoordinatorV2Interface constant COORDINATOR; // default visibility is internal in vars.
+    
     // These could be parameterized as well.
     bytes32 constant KEY_HASH = 0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc; //* gas lane key hash (check docs for more info)
     uint32 constant CALLBACK_GAS_LIMIT = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
@@ -47,7 +47,7 @@ contract Lottery is VRFConsumerBaseV2 {
         s_priceFeed = AggregatorV3Interface(_priceFeed);
         s_lotteryState = LotteryState.CLOSED; //* default lottery state is closed
         s_subscriptionId = _subscriptionId;
-        COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
+        i_vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
         if (_subscriptionId == 0) {
             createNewSubscription();
         }
@@ -68,8 +68,8 @@ contract Lottery is VRFConsumerBaseV2 {
     function createNewSubscription() private onlyOwner {
         address[] memory consumers = new address[](1);
         consumers[0] = address(this);
-        s_subscriptionId = COORDINATOR.createSubscription();
-        COORDINATOR.addConsumer(s_subscriptionId, consumers[0]);
+        s_subscriptionId = i_vrfCoordinator.createSubscription();
+        i_vrfCoordinator.addConsumer(s_subscriptionId, consumers[0]);
     }
 
     function getEntranceFee() public view returns (uint256) {
@@ -115,7 +115,7 @@ contract Lottery is VRFConsumerBaseV2 {
 
         s_lotteryState = LotteryState.SELECTING_WINNER;
         // * requestRandomWords() function returns a uint256 value
-        s_requestId = COORDINATOR.requestRandomWords(
+        s_requestId = i_vrfCoordinator.requestRandomWords(
             KEY_HASH,
             s_subscriptionId,
             REQUEST_CONFIRMATIONS,
