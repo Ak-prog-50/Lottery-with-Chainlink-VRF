@@ -39,7 +39,7 @@ contract Lottery is VRFConsumerBaseV2 {
     uint16 constant REQUEST_CONFIRMATIONS = 3; //* number of confirmations VRF node waits for before fulfilling request
     uint32 constant NUM_WORDS = 1; //* number of words(uint256 values) in the random word request
 
-    event WinnerGotMoney(address _recentWinner);
+    event WinnerGotMoney(address _recentWinner, uint256[] _randomWords);
 
     constructor(
         address _priceFeed,
@@ -138,7 +138,7 @@ contract Lottery is VRFConsumerBaseV2 {
         s_participants = new address[](0);
 
         s_lotteryState = LotteryState.CLOSED;
-        emit WinnerGotMoney(s_recentWinner);
+        emit WinnerGotMoney(s_recentWinner, _randomWords);
     }
 }
 
