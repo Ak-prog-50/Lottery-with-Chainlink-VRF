@@ -9,136 +9,147 @@ import "hardhat/console.sol";
 contract Lottery is VRFConsumerBaseV2 {
     // using SafeMathChainlink for uint256; //! Using safe math is only for uints. Need to use a library like abdk before pushing to production to check for overflow errros. (divi func in ABDK)
 
-    address public owner;
-    address[] public participants;
-    address payable public recentWinner;
-    int8 public entranceFeeInUsd;
-    uint256 public requestId;
-    uint64 subscriptionId;
-    VRFCoordinatorV2Interface COORDINATOR; // default visibility is internal in vars.
-
-    // These could be parameterized as well.
-    bytes32 keyHash = 0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc;  //* gas lane key hash (check docs for more info)
-    uint32 callbackGasLimit = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
-    uint16 requestConfirmations = 3; //* number of confirmations VRF node waits for before fulfilling request
-    uint32 numWords =  1; //* number of words(uint256 values) in the random word request
-    
-
     enum LotteryState {
         OPEN,
         CLOSED,
         SELECTING_WINNER
     }
 
-    LotteryState public lotteryState;
+    address public immutable i_owner;
+    int8 public immutable i_entranceFeeInUsd;
     
-    AggregatorV3Interface internal priceFeed;
-    mapping (address => uint256) public addressToAmountDeposited;
+    mapping(address => uint256) public s_addressToAmountDeposited;
+    address[] public s_participants;
+    address payable public s_recentWinner;
+    uint256 public s_requestId;
+    uint64 s_subscriptionId;
+    LotteryState public s_lotteryState;
+    AggregatorV3Interface internal s_priceFeed;
+
+    VRFCoordinatorV2Interface constant COORDINATOR; // default visibility is internal in vars.
+    // These could be parameterized as well.
+    bytes32 constant KEY_HASH = 0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc; //* gas lane key hash (check docs for more info)
+    uint32 constant CALLBACK_GAS_LIMIT = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
+    uint16 constant REQUEST_CONFIRMATIONS = 3; //* number of confirmations VRF node waits for before fulfilling request
+    uint32 constant NUM_WORDS = 1; //* number of words(uint256 values) in the random word request
+
+
     event ReturnedRandomness(uint256[] randomWords);
 
     constructor(
-        address _priceFeed, 
-        address _vrfCoordinator, 
-        int8 _entranceFeeInUsd, 
-        uint64 _subscriptionId  
+        address _priceFeed,
+        address _vrfCoordinator,
+        int8 _entranceFeeInUsd,
+        uint64 _subscriptionId
     ) VRFConsumerBaseV2(_vrfCoordinator) {
-        owner = msg.sender;
-        entranceFeeInUsd = _entranceFeeInUsd;
-        priceFeed = AggregatorV3Interface(_priceFeed);
-        lotteryState = LotteryState.CLOSED; //* default lottery state is closed
-        subscriptionId = _subscriptionId;
+        i_owner = msg.sender;
+        i_entranceFeeInUsd = _entranceFeeInUsd;
+        s_priceFeed = AggregatorV3Interface(_priceFeed);
+        s_lotteryState = LotteryState.CLOSED; //* default lottery state is closed
+        s_subscriptionId = _subscriptionId;
         COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
         if (_subscriptionId == 0) {
             createNewSubscription();
-        } 
+        }
     }
 
     // onlyOwner modifier
-    modifier onlyOwner {
-        require(msg.sender == owner, "You are not the owner");
+    modifier onlyOwner() {
+        require(msg.sender == i_owner, "You are not the owner");
         _;
     }
 
     // checkOpened modifier
-    modifier checkOpened {
-        require(lotteryState == LotteryState.OPEN, "Lottery is not open");
+    modifier checkOpened() {
+        require(s_lotteryState == LotteryState.OPEN, "Lottery is not open");
         _;
     }
-    
+
     function createNewSubscription() private onlyOwner {
         address[] memory consumers = new address[](1);
         consumers[0] = address(this);
-        subscriptionId = COORDINATOR.createSubscription();
-        COORDINATOR.addConsumer(subscriptionId, consumers[0]);
+        s_subscriptionId = COORDINATOR.createSubscription();
+        COORDINATOR.addConsumer(s_subscriptionId, consumers[0]);
     }
 
-    function getEntranceFee() public view returns(uint256){
-        (,int256 answer,,,) = priceFeed.latestRoundData();  // * returns ETH/USD rate with 8 decimal places as answer
+    function getEntranceFee() public view returns (uint256) {
+        (, int256 answer, , , ) = s_priceFeed.latestRoundData(); // * returns ETH/USD rate with 8 decimal places as answer
         // console.log(uint(answer), "answer");
 
         int256 roundedAnswer = answer / (10**8); // * 245678999700 => rounded as 2456
         // console.log(uint(roundedAnswer), "roundedAnswer");
 
-        int256 oneUSDInWei = 1 ether / roundedAnswer; //notes: answers decimals are ignored. need to recheck how to do rounding better 
+        int256 oneUSDInWei = 1 ether / roundedAnswer; //notes: answers decimals are ignored. need to recheck how to do rounding better
         // console.log(uint(oneUSDInWei), "oneUsdInWEi");
 
-        int256 entranceFeeInWei = oneUSDInWei * entranceFeeInUsd;
+        int256 entranceFeeInWei = oneUSDInWei * i_entranceFeeInUsd;
         // console.log(uint(entranceFeeInWei), "entranceFeeInwei");
 
-        return uint(entranceFeeInWei);
+        return uint256(entranceFeeInWei);
     }
 
-    function enter() public payable checkOpened{
+    function enter() public payable checkOpened {
         // know who has enterred
         // what amount has been deposited
 
         // check if the amount is enough
-        require(msg.value >= getEntranceFee(), "You have to deposit at least 50 USD");
-        
-        participants.push(msg.sender);
-        addressToAmountDeposited[msg.sender] = msg.value;  //! check how this works when funds added twice by the same address from the second start of lottery.
+        require(
+            msg.value >= getEntranceFee(),
+            "You have to deposit at least 50 USD"
+        );
+
+        s_participants.push(msg.sender);
+        s_addressToAmountDeposited[msg.sender] = msg.value; //! check how this works when funds added twice by the same address from the second start of lottery.
     }
 
     function startLottery() external onlyOwner {
-        require(lotteryState == LotteryState.CLOSED, "Lottery is already opened");
-        lotteryState = LotteryState.OPEN;
+        require(
+            s_lotteryState == LotteryState.CLOSED,
+            "Lottery is already opened"
+        );
+        s_lotteryState = LotteryState.OPEN;
     }
 
-    function endLottery() external onlyOwner checkOpened{
-        require(participants.length > 0, "No participants");
+    function endLottery() external onlyOwner checkOpened {
+        require(s_participants.length > 0, "No participants");
 
-        lotteryState = LotteryState.SELECTING_WINNER;
+        s_lotteryState = LotteryState.SELECTING_WINNER;
         // * requestRandomWords() function returns a uint256 value
-        requestId = COORDINATOR.requestRandomWords(
-            keyHash,
-            subscriptionId,
-            requestConfirmations,
-            callbackGasLimit,
-            numWords
+        s_requestId = COORDINATOR.requestRandomWords(
+            KEY_HASH,
+            s_subscriptionId,
+            REQUEST_CONFIRMATIONS,
+            CALLBACK_GAS_LIMIT,
+            NUM_WORDS
         );
     }
 
-    function fulfillRandomWords (uint256, uint256[] memory _randomWords) internal override {
+    function fulfillRandomWords(uint256, uint256[] memory _randomWords)
+        internal
+        override
+    {
         // * this function is for the callback from the VRF node. Can be called only from the VRF node. (check docs for more info. (request response cycle))
-        require(lotteryState == LotteryState.SELECTING_WINNER, "Lottery is not in the SELECTING_WINNER state");
+        require(
+            s_lotteryState == LotteryState.SELECTING_WINNER,
+            "Lottery is not in the SELECTING_WINNER state"
+        );
         require(_randomWords[0] > 0, "Random value is less than zero");
         require(_randomWords.length > 0, "No random values");
-        require(participants.length > 0, "No participants");
+        require(s_participants.length > 0, "No participants");
 
-        uint256 indexOfWinner = _randomWords[0] % participants.length;
-        require(indexOfWinner < participants.length, "Index out of bounds");
-        
-        recentWinner = payable(participants[indexOfWinner]); // participants array is not payable.
-        require(recentWinner != address(0), "Funds Are going to Hell!");  //this check is not neccary i think.
-        recentWinner.transfer(address(this).balance);
-        
+        uint256 indexOfWinner = _randomWords[0] % s_participants.length;
+        require(indexOfWinner < s_participants.length, "Index out of bounds");
+
+        s_recentWinner = payable(s_participants[indexOfWinner]); // participants array is not payable.
+        require(s_recentWinner != address(0), "Funds Are going to Hell!"); //this check is not neccary i think.
+        s_recentWinner.transfer(address(this).balance);
+
         // reset particiapants array
-        participants = new address[](0);
-        
-        lotteryState = LotteryState.CLOSED;
+        s_participants = new address[](0);
+
+        s_lotteryState = LotteryState.CLOSED;
         emit ReturnedRandomness(_randomWords);
     }
-
 }
 
 // test resting addresstoamount
