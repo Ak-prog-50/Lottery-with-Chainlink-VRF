@@ -19,7 +19,7 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
         const entranceFee = await lottery.getEntranceFee();
         await lottery.enter({ value: entranceFee });
 
-        const [, , guy1, guy2] = await ethers.getSigners(); // bypassing named accounts
+        const [, guy1, guy2] = await ethers.getSigners(); // bypassing named accounts
 
         await lottery.connect(guy1).enter({ value: entranceFee });
         await lottery.connect(guy2).enter({ value: entranceFee });
@@ -28,7 +28,7 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
       it("Should test the entrance fee and enter func()", async () => {
         const entranceFee = await lottery.getEntranceFee();
         const { deployer } = await getNamedAccounts();
-        const [, , guy1, guy2] = await ethers.getSigners();
+        const [, guy1, guy2] = await ethers.getSigners();
         console.log(
           "\t",
           deployer,
@@ -67,7 +67,7 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
       });
 
       it("Should successfully request random words and get a result", async () => {
-        const [, , , guy2] = await ethers.getSigners();
+        const [, , guy2] = await ethers.getSigners();
         const lotteryBalanceBeforeEnding = await ethers.provider.getBalance(
           lottery.address
         );
