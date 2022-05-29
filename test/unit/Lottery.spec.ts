@@ -53,6 +53,10 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
         expect(await lottery.s_addressToAmountDeposited(guy2.address)).to.equal(
           entranceFee
         );
+
+        await expect(lottery.enter()).to.be.revertedWith(
+          "Lottery__SendMoreToEnterLottery"
+        )
       });
 
       it("Should successfully request random words", async () => {
