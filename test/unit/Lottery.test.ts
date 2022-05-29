@@ -5,7 +5,7 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
 
 !developmentChains.includes(network.name)
   ? describe.skip
-  : describe("Lottery Unit Tests", async function () {
+  : describe("Lottery Unit Tests", function () {
       let lottery: Lottery;
       let vrfCoordinatorV2Mock: VRFCoordinatorV2Mock;
 
