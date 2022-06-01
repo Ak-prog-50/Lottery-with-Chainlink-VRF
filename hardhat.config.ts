@@ -48,7 +48,8 @@ const config: HardhatUserConfig = {
       url: "HTTP://127.0.0.1:7545",
     },
     truffle: {
-      url: "http://localhost:24012/rpc"
+      url: "http://localhost:24012/rpc",
+      chainId: 4
     }
   },
   gasReporter: {
