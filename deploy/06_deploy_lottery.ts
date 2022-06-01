@@ -54,7 +54,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")
-        await verify(lottery.address, args)
+        await verify(lottery.address, args, "contracts/Lottery.sol:Lottery")
       }
 }
 

@@ -30,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     process.env.ETHERSCAN_API_KEY
   ) {
     log("Verifying...");
-    await verify(timeLock.address, args);
+    await verify(timeLock.address, args, "contracts/onchain_governance/TimeLock.sol:TimeLock");
   }
 };
 

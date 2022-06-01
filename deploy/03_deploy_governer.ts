@@ -30,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     process.env.ETHERSCAN_API_KEY
   ) {
     log("Verifying...");
-    await verify(governor.address, args);
+    await verify(governor.address, args, "contracts/onchain_governance/TheGovernor.sol:TheGovernor");
   }
 };
 

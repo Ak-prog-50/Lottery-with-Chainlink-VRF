@@ -27,7 +27,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     process.env.ETHERSCAN_API_KEY
   ) {
     log("Verifying...");
-    await verify(governanceToken.address, []);
+    await verify(governanceToken.address, [], "contracts/onchain_governance/GovernanceToken.sol:GovernanceToken");
   }
 
   // await delegate(governanceToken.address, deployer)
