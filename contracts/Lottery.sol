@@ -5,13 +5,14 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol"; //* vrf coordinator contract interface
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol"; //* base contract for any VRF consumer
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 error Lottery__TransferFailed();
 error Lottery__SendMoreToEnterLottery();
 error Lottery__LotteryNotOpen();
-error Lottery__NotTheOwner();
+// error Lottery__NotTheOwner();
 
-contract Lottery is VRFConsumerBaseV2 {
+contract Lottery is VRFConsumerBaseV2, Ownable{
     // using SafeMathChainlink for uint256; //! Using safe math is only for uints. Need to use a library like abdk before pushing to production to check for overflow errros. (divi func in ABDK)
 
     enum LotteryState {
@@ -56,10 +57,10 @@ contract Lottery is VRFConsumerBaseV2 {
     }
 
     // onlyOwner modifier
-    modifier onlyOwner() {
-        if (msg.sender != i_owner) revert Lottery__NotTheOwner();
-        _;
-    }
+    // modifier onlyOwner() {
+    //     if (msg.sender != i_owner) revert Lottery__NotTheOwner();
+    //     _;
+    // }
 
     // checkOpened modifier
     modifier checkOpened() {

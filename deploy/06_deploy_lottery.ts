@@ -77,11 +77,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const lotteryContract = await ethers.getContract("Lottery");
   const timeLock = await ethers.getContract("TimeLock");
+  log(`Transferring ownership...`)
   const transferTx = await lotteryContract.transferOwnership(timeLock.address);
   await transferTx.wait(1);
-  log(
-    `Ownership of Lottery contract transferred to TimeLock contract at ${timeLock.address}`
-  );
+  log(`Ownership of Lottery contract transferred to TimeLock contract at ${timeLock.address}`);
 };
 
 export default func;
