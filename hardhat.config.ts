@@ -11,6 +11,8 @@ import '@openzeppelin/hardhat-upgrades';
 
 dotenv.config();
 
+const timestamp = Date.now()
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -45,12 +47,15 @@ const config: HardhatUserConfig = {
     ganache: {
       url: "HTTP://127.0.0.1:7545",
     },
+    truffle: {
+      url: "http://localhost:24012/rpc"
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     currency: "USD",
     coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY,
-    outputFile: "gas-report.txt",
+    outputFile: `gas-report${timestamp}.txt`,
     noColors: true
   },
   etherscan: {

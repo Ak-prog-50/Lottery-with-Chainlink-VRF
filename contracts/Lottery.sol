@@ -129,9 +129,7 @@ contract Lottery is VRFConsumerBaseV2 {
 
         s_recentWinner = payable(s_participants[indexOfWinner]); // participants array is not payable.
 
-        (bool success, ) = s_recentWinner.call{value: address(this).balance}(
-            ""
-        );
+        (bool success, ) = s_recentWinner.call{value: address(this).balance}("");  //* Calls to_recentWinner(an account contract in etheruem) from the lottery contract without specifying function bytes data.
         if (!success) revert Lottery__TransferFailed();
 
         // reset particiapants array
