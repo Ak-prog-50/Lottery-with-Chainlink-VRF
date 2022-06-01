@@ -3,6 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { verify } from "../helper-functions";
 import {
   developmentChains,
+  governorConfig,
   VERIFICATION_BLOCK_CONFIRMATIONS,
 } from "../helper-hardhat.config";
 import { network } from "hardhat";
@@ -15,7 +16,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const governanceToken = await deployments.get("GovernanceToken");
   const timeLock = await deployments.get("TimeLock");
 
-  const args = [governanceToken.address, timeLock.address, 1, 45818, 4, 0];
+  const { voting_delay, voting_period, quorum_fraction, proposal_threshold} = governorConfig
+
+  const args = [governanceToken.address, timeLock.address, voting_delay, voting_period, quorum_fraction, proposal_threshold];
   const governor = await deploy("TheGovernor", {
     from: deployer,
     args: args,
