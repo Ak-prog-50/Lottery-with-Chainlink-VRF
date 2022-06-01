@@ -2,10 +2,7 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import { ethers } from "hardhat";
 
-const setup = process.argv[-1]
-
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  if (!setup && setup !== "setup") return;  
   const { deployments, getNamedAccounts } = hre;
   const { deployer } = await getNamedAccounts()
   const timeLockAddr = await deployments.get("TimeLock")
@@ -28,3 +25,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 export default func; // can use whatever name in here. Hardhat deploy will import the export as "func"
+func.tags = ["setup"]
