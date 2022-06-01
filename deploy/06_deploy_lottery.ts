@@ -4,7 +4,7 @@ import { ethers, network } from "hardhat";
 import 'dotenv/config'
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
-// import { verify } from "../helper-functions"
+import { verify } from "../helper-functions"
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = hre
@@ -49,13 +49,13 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         from: deployer,
         args: args,
         log: true,
-        // waitConfirmations: waitBlockConfirmations
+        waitConfirmations: waitBlockConfirmations
     })
 
-    // if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-    //     log("Verifying...")
-    //     await verify(lottery.address, args)
-    //   }
+    if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
+        log("Verifying...")
+        await verify(lottery.address, args)
+      }
 }
 
 module.exports = func
