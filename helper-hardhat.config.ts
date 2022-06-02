@@ -86,6 +86,7 @@ export const governorConfig = {
     voting_period: 45818,
     quorum_fraction: 4,
     proposal_threshold: 0, // minimum num of votes an account must have to create a propsal
+    proposals_file: "proposals.json",
 }
 
 export const developmentChains: string[] = ["hardhat", "localhost"]

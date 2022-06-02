@@ -8,6 +8,7 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "hardhat-deploy";
 import '@openzeppelin/hardhat-upgrades';
+import "./tasks"
 
 dotenv.config();
 
@@ -50,6 +51,12 @@ const config: HardhatUserConfig = {
     truffle: {
       url: "http://localhost:24012/rpc",
       chainId: 4
+    },
+    localhost: {
+      chainId: 31337
+    },
+    hardhat: {
+      chainId: 31337
     }
   },
   gasReporter: {
