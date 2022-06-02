@@ -1,2 +1,0 @@
-import './propose'
-import './vote'
