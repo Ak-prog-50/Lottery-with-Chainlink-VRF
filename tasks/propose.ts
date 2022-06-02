@@ -54,7 +54,7 @@ task("propose", "Propose a new store value")
         }
         fs.writeFileSync(proposals_file, JSON.stringify(proposals))
       
-        // The state of the proposal.
+        // The state of the proposal. 1 is not passed. 0 is passed.
         console.log(`Current Proposal State: ${proposalState}`)
         // What block # the proposal was snapshot
         console.log(`Current Proposal Snapshot: ${proposalSnapShot}`)
