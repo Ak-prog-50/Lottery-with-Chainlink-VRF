@@ -8,6 +8,9 @@ import { ethers, network } from "hardhat";
 import { DeployFunction } from "hardhat-deploy/types";
 import { BigNumber } from "ethers";
 import { verify } from "../helper-functions";
+import { lotteryConfig } from "../helper-hardhat.config";
+
+const { entranceFeeInUSD, maxParticipantsLimit} = lotteryConfig;
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts } = hre;
@@ -16,7 +19,6 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   const chainId = hre.network.config.chainId;
   if (!chainId) return;
-  const entranceFeeInUSD = 50;
   let subscriptionId: BigNumber;
   let vrfCoordinatorAddr: string | undefined;
   let priceFeedAddr: string | undefined;
@@ -58,6 +60,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     vrfCoordinatorAddr,
     entranceFeeInUSD,
     subscriptionId,
+    maxParticipantsLimit,
   ];
 
   const lottery = await deploy("Lottery", {
