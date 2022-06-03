@@ -25,7 +25,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     VRFCoordinatorV2Interface immutable i_vrfCoordinator; 
 
     mapping(address => uint256) public s_addressToAmountDeposited;
-    mapping(address => bool) s_isParticipant;
+    mapping(address => bool) public s_isParticipant;
     address[] public s_participants;
     address payable public s_recentWinner;
     uint256 public s_requestId;

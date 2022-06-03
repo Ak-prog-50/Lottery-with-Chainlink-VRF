@@ -171,4 +171,16 @@ import { BigNumber } from "ethers";
           "PlayerEnteredLottery"
         );
       })
+
+      it("Should avoid duplicating elements in participants array", async () => {
+        const newLimit = ((await lottery.s_maxParticpantsLimit()).add(1)).toNumber()
+        await(await lottery.setMaxParticipantsLimit(newLimit)).wait(1);
+
+        const {deployer} = await getNamedAccounts()
+        const participantsLenBef = lottery.s_participants.length;
+        assert(await lottery.s_isParticipant(deployer));
+        await lottery.enter({value:entranceFee})
+        const participantsLenAft = lottery.s_participants.length;
+        assert(participantsLenAft === participantsLenBef);
+      })
     });
