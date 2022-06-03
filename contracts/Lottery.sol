@@ -27,6 +27,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
     VRFCoordinatorV2Interface immutable i_vrfCoordinator; 
 
     mapping(address => uint256) public s_addressToAmountDeposited;
+    mapping(address => bool) s_isParticipant;
     address[] public s_participants;
     address payable public s_recentWinner;
     uint256 public s_requestId;
@@ -93,8 +94,11 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
             revert Lottery__SendMoreToEnterLottery();
 
         if (s_participants.length >= s_maxParticpantsLimit) revert Lottery__ParticipantLimitExceeded();
-        s_participants.push(msg.sender);
-        s_addressToAmountDeposited[msg.sender] = msg.value; //! check how this works when funds added twice by the same address from the second start of lottery.
+        if (!s_isParticipant[msg.sender]) {
+            s_participants.push(msg.sender);
+        }
+        s_addressToAmountDeposited[msg.sender] = msg.value; // gives the recent Amount deposited
+        s_isParticipant[msg.sender] = true;
         emit PlayerEnteredLottery(msg.sender, msg.value);
     }
 
