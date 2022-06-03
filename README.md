@@ -9,7 +9,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/othneildrew/Best-README-Template/blob/master/images/logo.png?raw=true" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">The Lottery Smart Contract</h3>
@@ -61,6 +61,8 @@
 </br>
 <p align="center">
   <img src="images/lottery_img.jpg" alt="project_imgage" width="500" height="520" style="object-fit:contain;">
+  </br>
+ <sub><a href="https://www.freepik.com/vectors/bingo-game">Bingo game vector created by katemangostar - www.freepik.com</a></sub>
 </p>
 </br>
 
@@ -84,4 +86,4 @@ Use the `BLANK_README.md` to get started. -->
 [license-url]: #
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/akalanka-pathirage/
-[product-screenshot]: images/lottery_img.jpg
+[product-screenshot]: https://www.freepik.com/free-vector/lottery-tickets-balls-flying-golden-coins-gambling-business-advertising_2541227.htm#query=lottery%20ticket&position=0&from_view=keyword
