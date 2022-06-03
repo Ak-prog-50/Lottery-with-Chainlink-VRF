@@ -30,6 +30,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
     address[] public s_participants;
     address payable public s_recentWinner;
     uint256 public s_requestId;
+    uint256 public s_maxParticpantsLimit;
     uint64 s_subscriptionId;
     LotteryState public s_lotteryState;
     AggregatorV3Interface internal s_priceFeed;
@@ -46,13 +47,15 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         address _priceFeed,
         address _vrfCoordinator,
         int8 _entranceFeeInUsd,
-        uint64 _subscriptionId
+        uint64 _subscriptionId,
+        uint256 _maxParticpantsLimit
     ) VRFConsumerBaseV2(_vrfCoordinator) {
         i_owner = msg.sender;
         i_entranceFeeInUsd = _entranceFeeInUsd;
         s_priceFeed = AggregatorV3Interface(_priceFeed);
         s_lotteryState = LotteryState.CLOSED; //* default lottery state is closed
         s_subscriptionId = _subscriptionId;
+        s_maxParticpantsLimit = _maxParticpantsLimit;
         i_vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
     }
 
@@ -88,13 +91,17 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         if (msg.value < getEntranceFee())
             revert Lottery__SendMoreToEnterLottery();
 
-        if (s_participants.length >= 3) revert Lottery__ParticipantLimitExceeded();
+        if (s_participants.length >= s_maxParticpantsLimit) revert Lottery__ParticipantLimitExceeded();
         s_participants.push(msg.sender);
         s_addressToAmountDeposited[msg.sender] = msg.value; //! check how this works when funds added twice by the same address from the second start of lottery.
     }
 
     function getParticipantsLen() public view returns (uint256) {
         return uint256(s_participants.length);
+    }
+
+    function setMaxParticipantsLimit(uint256 _newLimit) public onlyOwner {
+        s_maxParticpantsLimit = _newLimit;
     }
 
     function startLottery() external onlyOwner {
