@@ -158,4 +158,17 @@ import { BigNumber } from "ethers";
           lottery.connect(guy5).enter({ value: entranceFee })
         ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
       })
+
+      it("Should emit event when a particiapnt enters", async () => {
+        const currentLimit = await lottery.s_maxParticpantsLimit();
+        const newLimit = (currentLimit.add(1)).toNumber()
+        const newGuy = signers[newLimit]
+        const tx = await lottery.setMaxParticipantsLimit(newLimit);
+        await tx.wait(1);
+
+        await expect(lottery.connect(newGuy).enter({ value: entranceFee })).to.emit(
+          lottery,
+          "PlayerEnteredLottery"
+        );
+      })
     });

@@ -42,6 +42,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
     uint32 constant NUM_WORDS = 1; //* number of words(uint256 values) in the random word request
 
     event WinnerGotMoney(address _recentWinner, uint256[] _randomWords);
+    event PlayerEnteredLottery(address _participant, uint256 _amountDeposited);
 
     constructor(
         address _priceFeed,
@@ -94,6 +95,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         if (s_participants.length >= s_maxParticpantsLimit) revert Lottery__ParticipantLimitExceeded();
         s_participants.push(msg.sender);
         s_addressToAmountDeposited[msg.sender] = msg.value; //! check how this works when funds added twice by the same address from the second start of lottery.
+        emit PlayerEnteredLottery(msg.sender, msg.value);
     }
 
     function getParticipantsLen() public view returns (uint256) {
