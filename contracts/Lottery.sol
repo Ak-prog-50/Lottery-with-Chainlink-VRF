@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 error Lottery__TransferFailed();
 error Lottery__SendMoreToEnterLottery();
 error Lottery__LotteryNotOpen();
+error Lottery__ParticipantLimitExceeded();
 // error Lottery__NotTheOwner();
 
 contract Lottery is VRFConsumerBaseV2, Ownable{
@@ -87,8 +88,13 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         if (msg.value < getEntranceFee())
             revert Lottery__SendMoreToEnterLottery();
 
+        if (s_participants.length >= 3) revert Lottery__ParticipantLimitExceeded();
         s_participants.push(msg.sender);
         s_addressToAmountDeposited[msg.sender] = msg.value; //! check how this works when funds added twice by the same address from the second start of lottery.
+    }
+
+    function getParticipantsLen() public view returns (uint256) {
+        return uint256(s_participants.length);
     }
 
     function startLottery() external onlyOwner {
@@ -118,7 +124,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         require(s_lotteryState == LotteryState.SELECTING_WINNER);
         require(_randomWords[0] > 0);
         require(_randomWords.length > 0);
-        require(s_participants.length > 0);
 
         uint256 indexOfWinner = _randomWords[0] % s_participants.length;
         require(indexOfWinner < s_participants.length);
