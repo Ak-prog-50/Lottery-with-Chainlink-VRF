@@ -23,7 +23,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
 
     address public immutable i_owner;
     int8 public immutable i_entranceFeeInUsd;
-    VRFCoordinatorV2Interface immutable i_vrfCoordinator; // default visibility is internal in vars.
+    VRFCoordinatorV2Interface immutable i_vrfCoordinator; 
 
     mapping(address => uint256) public s_addressToAmountDeposited;
     address[] public s_participants;
@@ -33,7 +33,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
     LotteryState public s_lotteryState;
     AggregatorV3Interface internal s_priceFeed;
 
-    // These could be parameterized as well.
     bytes32 constant KEY_HASH =
         0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc; //* gas lane key hash (check docs for more info)
     uint32 constant CALLBACK_GAS_LIMIT = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
@@ -75,7 +74,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         int256 roundedAnswer = answer / (10**8); // * 245678999700 => rounded as 2456
         // console.log(uint(roundedAnswer), "roundedAnswer");
 
-        int256 oneUSDInWei = 1 ether / roundedAnswer; //notes: answers decimals are ignored. need to recheck how to do rounding better
+        int256 oneUSDInWei = 1 ether / roundedAnswer; // notes: answers decimals are ignored. need to recheck how to do rounding better
         // console.log(uint(oneUSDInWei), "oneUsdInWEi");
 
         int256 entranceFeeInWei = oneUSDInWei * i_entranceFeeInUsd;
@@ -85,10 +84,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
     }
 
     function enter() public payable checkOpened {
-        // know who has enterred
-        // what amount has been deposited
-
-        // check if the amount is enough
         if (msg.value < getEntranceFee())
             revert Lottery__SendMoreToEnterLottery();
 
@@ -133,13 +128,8 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         (bool success, ) = s_recentWinner.call{value: address(this).balance}("");  //* Calls to_recentWinner(an account contract in etheruem) from the lottery contract without specifying function bytes data.
         if (!success) revert Lottery__TransferFailed();
 
-        // reset particiapants array
         s_participants = new address[](0);
-
         s_lotteryState = LotteryState.CLOSED;
         emit WinnerGotMoney(s_recentWinner, _randomWords);
     }
 }
-
-// test resting addresstoamount
-// test how to store previous data
