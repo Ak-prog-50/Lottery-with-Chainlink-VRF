@@ -2,12 +2,15 @@ import { assert, expect } from "chai";
 import { network, deployments, ethers, getNamedAccounts } from "hardhat";
 import { developmentChains } from "../../helper-hardhat.config";
 import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
+import { BigNumber } from "ethers";
 
 !developmentChains.includes(network.name)
   ? describe.skip
   : describe("Lottery Unit Tests", function () {
       let lottery: Lottery;
       let vrfCoordinatorV2Mock: VRFCoordinatorV2Mock;
+      let signers:any[];
+      let entranceFee: BigNumber;
 
       beforeEach(async () => {
         await deployments.fixture(["mocks", "lottery"]);
@@ -16,17 +19,17 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
         console.log(lottery.address, "lottery address");
         await lottery.startLottery();
 
-        const entranceFee = await lottery.getEntranceFee();
+        entranceFee = await lottery.getEntranceFee();
         await lottery.enter({ value: entranceFee });
 
-        const [, guy1, guy2] = await ethers.getSigners(); // bypassing named accounts
+        signers = await ethers.getSigners();
+        const [, guy1, guy2] = signers; // bypassing named accounts
 
         await lottery.connect(guy1).enter({ value: entranceFee });
         await lottery.connect(guy2).enter({ value: entranceFee });
       });
 
       it("Should test the entrance fee and enter func()", async () => {
-        const entranceFee = await lottery.getEntranceFee();
         const { deployer } = await getNamedAccounts();
         const [, guy1, guy2] = await ethers.getSigners();
         console.log(
@@ -134,9 +137,25 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
       });
 
       it("Should not be able to enter after particpant limit exceeds", async () => {
-        const [, , , guy3] = await ethers.getSigners();
+        const guy3 = signers[3]
         await expect(
-          lottery.connect(guy3).enter({ value: await lottery.getEntranceFee() })
+          lottery.connect(guy3).enter({ value: entranceFee })
+        ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
+      })
+
+      it("Should be able to change the maxParticiapntsLimit", async () => {
+        const tx = await lottery.setMaxParticipantsLimit(5);
+        await tx.wait(1);
+        expect(await lottery.s_maxParticpantsLimit()).to.equal(5);
+
+        const guy3 = signers[3]
+        const guy4 = signers[4]
+        await lottery.connect(guy3).enter({ value: entranceFee });
+        await lottery.connect(guy4).enter({ value: entranceFee });
+
+        const guy5 = signers[5]
+        await expect(
+          lottery.connect(guy5).enter({ value: entranceFee })
         ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
       })
     });
