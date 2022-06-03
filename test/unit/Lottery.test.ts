@@ -132,4 +132,11 @@ import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
         );
         console.log("\n");
       });
+
+      it("Should not be able to enter after particpant limit exceeds", async () => {
+        const [, , , guy3] = await ethers.getSigners();
+        await expect(
+          lottery.connect(guy3).enter({ value: await lottery.getEntranceFee() })
+        ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
+      })
     });
