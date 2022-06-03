@@ -11,18 +11,16 @@ error Lottery__TransferFailed();
 error Lottery__SendMoreToEnterLottery();
 error Lottery__LotteryNotOpen();
 error Lottery__ParticipantLimitExceeded();
+
 // error Lottery__NotTheOwner();
 
-contract Lottery is VRFConsumerBaseV2, Ownable{
-    // using SafeMathChainlink for uint256; //! Using safe math is only for uints. Need to use a library like abdk before pushing to production to check for overflow errros. (divi func in ABDK)
-
+contract Lottery is VRFConsumerBaseV2, Ownable {
     enum LotteryState {
         OPEN,
         CLOSED,
         SELECTING_WINNER
     }
 
-    address public immutable i_owner;
     int8 public immutable i_entranceFeeInUsd;
     VRFCoordinatorV2Interface immutable i_vrfCoordinator; 
 
@@ -52,7 +50,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         uint64 _subscriptionId,
         uint256 _maxParticpantsLimit
     ) VRFConsumerBaseV2(_vrfCoordinator) {
-        i_owner = msg.sender;
         i_entranceFeeInUsd = _entranceFeeInUsd;
         s_priceFeed = AggregatorV3Interface(_priceFeed);
         s_lotteryState = LotteryState.CLOSED; //* default lottery state is closed
@@ -61,16 +58,30 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         i_vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
     }
 
-    // onlyOwner modifier
-    // modifier onlyOwner() {
-    //     if (msg.sender != i_owner) revert Lottery__NotTheOwner();
-    //     _;
-    // }
-
     // checkOpened modifier
     modifier checkOpened() {
-        if (s_lotteryState != LotteryState.OPEN) revert Lottery__LotteryNotOpen();
+        if (s_lotteryState != LotteryState.OPEN)
+            revert Lottery__LotteryNotOpen();
         _;
+    }
+
+    function startLottery() external onlyOwner {
+        require(s_lotteryState == LotteryState.CLOSED);
+        s_lotteryState = LotteryState.OPEN;
+    }
+
+    function endLottery() external onlyOwner checkOpened {
+        require(s_participants.length > 0, "No participants");
+
+        s_lotteryState = LotteryState.SELECTING_WINNER;
+        // * requestRandomWords() function returns a uint256 value
+        s_requestId = i_vrfCoordinator.requestRandomWords(
+            KEY_HASH,
+            s_subscriptionId,
+            REQUEST_CONFIRMATIONS,
+            CALLBACK_GAS_LIMIT,
+            NUM_WORDS
+        );
     }
 
     function getEntranceFee() public view returns (uint256) {
@@ -93,7 +104,8 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         if (msg.value < getEntranceFee())
             revert Lottery__SendMoreToEnterLottery();
 
-        if (s_participants.length >= s_maxParticpantsLimit) revert Lottery__ParticipantLimitExceeded();
+        if (s_participants.length >= s_maxParticpantsLimit)
+            revert Lottery__ParticipantLimitExceeded();
         if (!s_isParticipant[msg.sender]) {
             s_participants.push(msg.sender);
         }
@@ -110,25 +122,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
         s_maxParticpantsLimit = _newLimit;
     }
 
-    function startLottery() external onlyOwner {
-        require(s_lotteryState == LotteryState.CLOSED);
-        s_lotteryState = LotteryState.OPEN;
-    }
-
-    function endLottery() external onlyOwner checkOpened {
-        require(s_participants.length > 0, "No participants");
-
-        s_lotteryState = LotteryState.SELECTING_WINNER;
-        // * requestRandomWords() function returns a uint256 value
-        s_requestId = i_vrfCoordinator.requestRandomWords(
-            KEY_HASH,
-            s_subscriptionId,
-            REQUEST_CONFIRMATIONS,
-            CALLBACK_GAS_LIMIT,
-            NUM_WORDS
-        );
-    }
-
     function fulfillRandomWords(uint256, uint256[] memory _randomWords)
         internal
         override
@@ -143,7 +136,9 @@ contract Lottery is VRFConsumerBaseV2, Ownable{
 
         s_recentWinner = payable(s_participants[indexOfWinner]); // participants array is not payable.
 
-        (bool success, ) = s_recentWinner.call{value: address(this).balance}("");  //* Calls to_recentWinner(an account contract in etheruem) from the lottery contract without specifying function bytes data.
+        (bool success, ) = s_recentWinner.call{value: address(this).balance}(
+            ""
+        ); //* Calls to_recentWinner(an account contract in etheruem) from the lottery contract without specifying function bytes data.
         if (!success) revert Lottery__TransferFailed();
 
         s_participants = new address[](0);
