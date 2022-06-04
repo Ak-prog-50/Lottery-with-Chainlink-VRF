@@ -8,23 +8,23 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
+<!--   <a href="#">
     <img src="https://github.com/othneildrew/Best-README-Template/blob/master/images/logo.png?raw=true" alt="Logo" width="80" height="80">
-  </a>
+  </a> -->
+  :diamond_shape_with_a_dot_inside: :diamond_shape_with_a_dot_inside: :diamond_shape_with_a_dot_inside:
 
   <h3 align="center">The Lottery Smart Contract</h3>
-
   <p align="center">
     Lottery that can select a verifiably random winner...
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>View on Etherscan »</strong></a>
+    <a href="https://rinkeby.etherscan.io/address/0x03c2f2816c97a7a5d08d05ec87bce65310dc5d58#readContract"><strong>View on Etherscan »</strong></a>
     <br />
     <br />
-<!--     <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a> -->
+    <a href="#about-the-project">About</a>
+    ·&nbsp;
+    <a href="#local-development">Local Development</a>
+    ·&nbsp;
+    <a href="#usage">Usage</a>
   </p>
 </div>
 
@@ -41,15 +41,14 @@
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#local-development">Local Development</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#local-development">Open in Gitpod</a></li>
+        <li><a href="#setup">Setup</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#things-to-do">Things to do</a></li>
   </ol>
 </details>
 
@@ -66,18 +65,88 @@
 </p>
 </br>
 
-<!-- There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+This Lottery Smart Contract is scheduled to start automatically every 24 hrs ( *if the conditions are met ). This is done by using openzeppelin's [defender autotasks](https://docs.openzeppelin.com/defender/autotasks). After being started players can enter the Lottery. They have to enter a minimum threshold of 50 USD. The price of 50 USD in ETH is calculated in real-time by using [chainlink data feed oracles](https://docs.chain.link/docs/using-chainlink-reference-contracts/).
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
+When a player enters the lottery an event is emitted from the smart contract. I have set up a [defender sentinel](https://docs.openzeppelin.com/defender/sentinel) to listen for this event. The maximum limit of players is 3. ( I have set this to 3, So it's easy to test with fewer accounts ). The sentinel (event listener) triggers the `endLottery` task when the max limit of players is reached.
 
-Use the `BLANK_README.md` to get started. -->
+To end the lottery a random winner has to be selected. But getting a truly random number is not a task for a deterministic system like blockchain. So 
+the random number is fetched using [chainlink VRF](https://docs.chain.link/docs/chainlink-vrf/#overview) (Verifiable Random Function). 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+### Built With
+
+* [Hardhat](https://hardhat.org/)
+* [Typescript](https://www.typescriptlang.org/)
+* [Solidity](https://docs.soliditylang.org/en/v0.8.14/)
+* [Ethers.js](https://docs.ethers.io/v5/)
+* [Waffle](https://ethereum-waffle.readthedocs.io/en/latest/index.html)
+* [OpenZeppelin](https://docs.openzeppelin.com/)
+* [Chainlink](https://docs.chain.link/)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+
+<!-- LOCAL DEVELOPMENT -->
+## Local Development
+
+This repo includes deploy scripts, unit tests and staging tests and scripts for executing transactions. You can test locally or in Gitpod. 
+</br></br>
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Ak-prog-50/Lottery-with-Chainlink-and-Openzeppelin-Defender)
+
+### Setup
+
+1. env variables
+    * [Etherscan API key](https://docs.etherscan.io/) : for verifying of contracts
+    * [CoinMarketCap API key](https://coinmarketcap.com/api/documentation/v1/#section/Quick-Start-Guide) : for gas estimation in USD
+    * [VRF v2 Subscription Id](https://vrf.chain.link/) : for using chainlink VRF
+    * [Truffle dashboard](https://trufflesuite.com/docs/truffle/getting-started/using-the-truffle-dashboard/) : for using metamask instaed of private keys
+
+2. Run Unit Tests
+    * Spin up a local blockchain `npx hardhat node`
+    * Run tests in local network `npx hardhat test --network localhost`
+    * See code coverage `npx hardhat coverage`
+   
+3. Run Staging Tests
+    * Open truffle dashboard `truffle dashboard`
+    * Deploy to a live network `npx hardhat deploy --network truffle` </br>
+    <i> configured to use Rinkeby network addresses by default (for vrf & price feed addresses ) </i>
+    * Run staging test. `npx hardhat test --network truffle`
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+1. Go to [Etherscan](https://rinkeby.etherscan.io/address/0x03c2f2816c97a7a5d08d05ec87bce65310dc5d58#readContract).
+2. Check the lottery state ( s_lotteryState : "0" means open, "1" means closed, "2" means selectingWinner)
+3. If the lottery is open you can enter. Otherwise has to wait for 24 hrs. Lottery automatically starts every 24 hrs if the lottery is closed.
+4. Check the Entrance Fee ( getEntranceFee )
+5. Entrance fee is in wei. Convert it to ether.
+6. Enter by sending entrance fee. ( enter function )
+7. Check the number of participants  ( getParticipantsLen )
+8. When the number of participants hit the max limit ( s_maxParticipantsLimit ) the lottery will automatically end and select a winner.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- ROADMAP -->
+## Things to do
+
+- [x] Automate Lottery using Openzeppelin defender
+- [ ] Use chainlink keepers to automate the lottery in a decentralized manner
+
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
