@@ -59,7 +59,7 @@
 
 </br>
 <p align="center">
-  <img src="https://img.freepik.com/free-vector/lottery-tickets-balls-flying-golden-coins-gambling-business-advertising_1262-13075.jpg?w=740&t=st=1654263292~exp=1654263892~hmac=4d67d752766966e77d7a29da390d04676c43ef10da4c23becac744499f70926f" alt="project_imgage" width="500" height="520" style="object-fit:contain;">
+  <img src="https://img.freepik.com/free-vector/lottery-tickets-balls-flying-golden-coins-gambling-business-advertising_1262-13075.jpg?w=740&t=st=1654263292~exp=1654263892~hmac=4d67d752766966e77d7a29da390d04676c43ef10da4c23becac744499f70926f" alt="project_imgage" width="350" height="370" style="object-fit:contain;">
   </br>
  <sub><a href="https://www.freepik.com/vectors/bingo-game">Bingo game vector created by katemangostar - www.freepik.com</a></sub>
 </p>
