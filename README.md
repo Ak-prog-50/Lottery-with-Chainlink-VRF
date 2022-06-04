@@ -20,11 +20,11 @@
     <a href="https://rinkeby.etherscan.io/address/0x03c2f2816c97a7a5d08d05ec87bce65310dc5d58#readContract"><strong>View on Etherscan »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">About</a>
+    <a href="#about-the-project">About</a>
     ·&nbsp;
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Local Development</a>
+    <a href="#local-development">Local Development</a>
     ·&nbsp;
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">View Docs</a>
+    <a href="#usage">Usage</a>
   </p>
 </div>
 
@@ -48,8 +48,7 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#things-to-do">Things to do</a></li>
   </ol>
 </details>
 
@@ -118,6 +117,33 @@ This repo includes deploy scripts, unit tests and staging tests and scripts for 
     * Deploy to a live network `npx hardhat deploy --network truffle` </br>
     <i> configured to use Rinkeby network addresses by default (for vrf & price feed addresses ) </i>
     * Run staging test. `npx hardhat test --network truffle`
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+1. Go to [Etherscan](https://rinkeby.etherscan.io/address/0x03c2f2816c97a7a5d08d05ec87bce65310dc5d58#readContract).
+2. Check the lottery state ( s_lotteryState : "0" means open, "1" means closed, "2" means selectingWinner)
+3. If the lottery is open you can enter. Otherwise has to wait for 24 hrs. Lottery automatically starts every 24 hrs if the lottery is closed.
+4. Check the Entrance Fee ( getEntranceFee )
+5. Entrance fee is in wei. Convert it to ether.
+6. Enter by sending entrance fee. ( enter function )
+7. Check the number of participants  ( getParticipantsLen )
+8. When the number of participants hit the max limit ( s_maxParticipantsLimit ) the lottery will automatically end and select a winner.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- ROADMAP -->
+## Things to do
+
+- [x] Automate Lottery using Openzeppelin defender
+- [ ] Use chainlink keepers to automate the lottery in a decentralized manner
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
