@@ -8,12 +8,12 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
+<!--   <a href="https://github.com/othneildrew/Best-README-Template">
     <img src="https://github.com/othneildrew/Best-README-Template/blob/master/images/logo.png?raw=true" alt="Logo" width="80" height="80">
-  </a>
+  </a> -->
+  :diamond_shape_with_a_dot_inside: :diamond_shape_with_a_dot_inside: :diamond_shape_with_a_dot_inside:
 
   <h3 align="center">The Lottery Smart Contract</h3>
-
   <p align="center">
     Lottery that can select a verifiably random winner...
     <br />
