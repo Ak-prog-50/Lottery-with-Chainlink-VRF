@@ -141,6 +141,10 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         ); //* Calls to_recentWinner(an account contract in etheruem) from the lottery contract without specifying function bytes data.
         if (!success) revert Lottery__TransferFailed();
 
+        for (uint256 i = 0; i < s_participants.length; i++) {
+            s_isParticipant[s_participants[i]] = false;
+        }
+
         s_participants = new address[](0);
         s_lotteryState = LotteryState.CLOSED;
         emit WinnerGotMoney(s_recentWinner, _randomWords);
