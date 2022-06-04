@@ -9,7 +9,7 @@ import { BigNumber } from "ethers";
   : describe("Lottery Unit Tests", function () {
       let lottery: Lottery;
       let vrfCoordinatorV2Mock: VRFCoordinatorV2Mock;
-      let signers:any[];
+      let signers: any[];
       let entranceFee: BigNumber;
 
       beforeEach(async () => {
@@ -47,7 +47,7 @@ import { BigNumber } from "ethers";
 
         await expect(lottery.enter()).to.be.revertedWith(
           "Lottery__SendMoreToEnterLottery"
-        )
+        );
       });
 
       it("Should successfully request random words", async () => {
@@ -125,81 +125,101 @@ import { BigNumber } from "ethers";
       });
 
       it("Should not be able to enter after particpant limit exceeds", async () => {
-        const guy3 = signers[3]
+        const guy3 = signers[3];
         await expect(
           lottery.connect(guy3).enter({ value: entranceFee })
         ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
-      })
+      });
 
       it("Should be able to change the maxParticiapntsLimit", async () => {
         const tx = await lottery.setMaxParticipantsLimit(5);
         await tx.wait(1);
         expect(await lottery.s_maxParticpantsLimit()).to.equal(5);
 
-        const guy3 = signers[3]
-        const guy4 = signers[4]
+        const guy3 = signers[3];
+        const guy4 = signers[4];
         await lottery.connect(guy3).enter({ value: entranceFee });
         await lottery.connect(guy4).enter({ value: entranceFee });
 
-        const guy5 = signers[5]
+        const guy5 = signers[5];
         await expect(
           lottery.connect(guy5).enter({ value: entranceFee })
         ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
-      })
+      });
 
       it("Should emit event when a particiapnt enters", async () => {
         const currentLimit = await lottery.s_maxParticpantsLimit();
-        const newLimit = (currentLimit.add(1)).toNumber()
-        const newGuy = signers[newLimit]
+        const newLimit = currentLimit.add(1).toNumber();
+        const newGuy = signers[newLimit];
         const tx = await lottery.setMaxParticipantsLimit(newLimit);
         await tx.wait(1);
 
-        await expect(lottery.connect(newGuy).enter({ value: entranceFee })).to.emit(
-          lottery,
-          "PlayerEnteredLottery"
-        );
-      })
+        await expect(
+          lottery.connect(newGuy).enter({ value: entranceFee })
+        ).to.emit(lottery, "PlayerEnteredLottery");
+      });
 
       it("Should avoid duplicating elements in participants array", async () => {
-        const newLimit = ((await lottery.s_maxParticpantsLimit()).add(1)).toNumber()
-        await(await lottery.setMaxParticipantsLimit(newLimit)).wait(1);
+        const newLimit = (await lottery.s_maxParticpantsLimit())
+          .add(1)
+          .toNumber();
+        await (await lottery.setMaxParticipantsLimit(newLimit)).wait(1);
 
-        const {deployer} = await getNamedAccounts()
+        const { deployer } = await getNamedAccounts();
         const participantsLenBef = lottery.s_participants.length;
         assert(await lottery.s_isParticipant(deployer));
-        await lottery.enter({value:entranceFee})
+        await lottery.enter({ value: entranceFee });
         const participantsLenAft = lottery.s_participants.length;
         assert(participantsLenAft === participantsLenBef);
-      })
+      });
 
       it("Should reset arrays and relevant mappings when ending lottery", async () => {
-        const { deployer } = await getNamedAccounts()
+        const { deployer } = await getNamedAccounts();
 
         await new Promise(async (resolve, reject) => {
-
           lottery.once("WinnerGotMoney", async () => {
-            console.info("Winner got the Money! Should reset.")
+            console.info("Winner got the Money! Should reset.");
             try {
-              assert(await lottery.s_isParticipant(deployer) === false)
-              assert((await lottery.getParticipantsLen()).toNumber() === 0)
-              assert(await lottery.s_lotteryState() === 1)
-              resolve(true)
+              assert((await lottery.s_isParticipant(deployer)) === false);
+              assert((await lottery.getParticipantsLen()).toNumber() === 0);
+              assert((await lottery.s_lotteryState()) === 1);
+              resolve(true);
+            } catch (err) {
+              console.error(err);
+              reject();
             }
-            catch (err) {
-              console.error(err)
-              reject()
-            }
-          })
+          });
 
-          const tx = await lottery.endLottery()
-          await tx.wait(1)
-          const s_requestId = await lottery.s_requestId()
+          const tx = await lottery.endLottery();
+          await tx.wait(1);
+          const s_requestId = await lottery.s_requestId();
 
           await expect(
-            vrfCoordinatorV2Mock.fulfillRandomWords(s_requestId, lottery.address)
+            vrfCoordinatorV2Mock.fulfillRandomWords(
+              s_requestId,
+              lottery.address
+            )
           ).to.emit(lottery, "WinnerGotMoney");
+        });
+      });
 
-        })
-        
-      })
+      it("Should be able to enter when new round begins", async () => {
+        const { deployer } = await getNamedAccounts();
+        await (await lottery.endLottery()).wait(1);
+        const s_requestId = await lottery.s_requestId();
+        await (
+          await vrfCoordinatorV2Mock.fulfillRandomWords(
+            s_requestId,
+            lottery.address
+          )
+        ).wait(1);
+
+        await (await lottery.startLottery()).wait(1);
+        assert((await lottery.s_lotteryState()) === 0);
+
+        assert((await lottery.s_isParticipant(deployer)) === false);
+        await lottery.enter({ value: entranceFee });
+        assert((await lottery.getParticipantsLen()).toNumber() === 1);
+        assert((await lottery.s_isParticipant(deployer)) === true);
+      });
     });
