@@ -143,6 +143,7 @@ This repo includes deploy scripts, unit tests and staging tests and scripts for 
 
 - [x] Automate Lottery using Openzeppelin defender
 - [ ] Use chainlink keepers to automate the lottery in a decentralized manner
+- [ ] Build a user interface with React
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
