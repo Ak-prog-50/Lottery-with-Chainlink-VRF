@@ -32,18 +32,6 @@ import { BigNumber } from "ethers";
       it("Should test the entrance fee and enter func()", async () => {
         const { deployer } = await getNamedAccounts();
         const [, guy1, guy2] = await ethers.getSigners();
-        console.log(
-          "\t",
-          deployer,
-          guy1.address,
-          guy2.address,
-          "deployer, guy1, guy2"
-        );
-
-        // console.log(entranceFee.toString(), "entry fee")
-        // console.log(deployer, typeof(deployer), "deployer")
-        // console.log("\n", typeof(await lottery.s_participants(0)), "Participant zero")
-        // console.log((await lottery.s_addressToAmountDeposited(deployer)).toString(), "Amount funded")
         expect(await lottery.s_participants(0)).to.equal(deployer);
         expect(await lottery.s_addressToAmountDeposited(deployer)).to.equal(
           entranceFee
@@ -81,7 +69,7 @@ import { BigNumber } from "ethers";
         await lottery.endLottery();
         const s_requestId = await lottery.s_requestId();
         //   console.log(s_requestId.toString(), "s_requestId")
-
+        // notes: promise could be used here.
         // simulate callback from the oracle network
         await expect(
           vrfCoordinatorV2Mock.fulfillRandomWords(s_requestId, lottery.address)
@@ -182,5 +170,36 @@ import { BigNumber } from "ethers";
         await lottery.enter({value:entranceFee})
         const participantsLenAft = lottery.s_participants.length;
         assert(participantsLenAft === participantsLenBef);
+      })
+
+      it("Should reset arrays and relevant mappings when ending lottery", async () => {
+        const { deployer } = await getNamedAccounts()
+
+        await new Promise(async (resolve, reject) => {
+
+          lottery.once("WinnerGotMoney", async () => {
+            console.info("Winner got the Money! Should reset.")
+            try {
+              assert(await lottery.s_isParticipant(deployer) === false)
+              assert((await lottery.getParticipantsLen()).toNumber() === 0)
+              assert(await lottery.s_lotteryState() === 1)
+              resolve(true)
+            }
+            catch (err) {
+              console.error(err)
+              reject()
+            }
+          })
+
+          const tx = await lottery.endLottery()
+          await tx.wait(1)
+          const s_requestId = await lottery.s_requestId()
+
+          await expect(
+            vrfCoordinatorV2Mock.fulfillRandomWords(s_requestId, lottery.address)
+          ).to.emit(lottery, "WinnerGotMoney");
+
+        })
+        
       })
     });
