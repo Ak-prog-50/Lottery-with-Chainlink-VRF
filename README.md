@@ -17,7 +17,7 @@
   <p align="center">
     Lottery that can select a verifiably random winner...
     <br />
-    <a href="https://rinkeby.etherscan.io/address/0x03c2f2816c97a7a5d08d05ec87bce65310dc5d58#readContract"><strong>View on Etherscan »</strong></a>
+    <a href="https://rinkeby.etherscan.io/address/0xa22B2Aea4F543957927346b73004A260952eB491#readContract"><strong>View on Etherscan »</strong></a>
     <br />
     <br />
     <a href="#about-the-project">About</a>
@@ -125,7 +125,7 @@ This repo includes deploy scripts, unit tests and staging tests and scripts for 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-1. Go to [Etherscan](https://rinkeby.etherscan.io/address/0x03c2f2816c97a7a5d08d05ec87bce65310dc5d58#readContract).
+1. Go to [Etherscan](https://rinkeby.etherscan.io/address/0xa22B2Aea4F543957927346b73004A260952eB491#readContract).
 2. Check the lottery state ( s_lotteryState : "0" means open, "1" means closed, "2" means selectingWinner)
 3. If the lottery is open you can enter. Otherwise has to wait for 24 hrs. Lottery automatically starts every 24 hrs if the lottery is closed.
 4. Check the Entrance Fee ( getEntranceFee )
