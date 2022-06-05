@@ -133,6 +133,7 @@ This repo includes deploy scripts, unit tests and staging tests and scripts for 
 6. Enter by sending entrance fee. ( enter function )
 7. Check the number of participants  ( getParticipantsLen )
 8. When the number of participants hit the max limit ( s_maxParticipantsLimit ) the lottery will automatically end and select a winner.
+9. Visit [this page](https://vrf.chain.link/rinkeby/4262) to see pending radnomness requests to VRF.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -143,6 +144,7 @@ This repo includes deploy scripts, unit tests and staging tests and scripts for 
 
 - [x] Automate Lottery using Openzeppelin defender
 - [ ] Use chainlink keepers to automate the lottery in a decentralized manner
+- [ ] Fuzz Testing
 - [ ] Build a user interface with React
 
 
