@@ -31,7 +31,7 @@ import { BigNumber } from "ethers";
 
       it("Should test the entrance fee and enter func()", async () => {
         const { deployer } = await getNamedAccounts();
-        const [, guy1, guy2] = await ethers.getSigners();
+        const [, guy1, guy2] = signers;
         expect(await lottery.s_participants(0)).to.equal(deployer);
         expect(await lottery.s_addressToAmountDeposited(deployer)).to.equal(
           entranceFee
@@ -58,7 +58,7 @@ import { BigNumber } from "ethers";
       });
 
       it("Should successfully request random words and get a result", async () => {
-        const [, , guy2] = await ethers.getSigners();
+        const [, , guy2] = signers;
         const lotteryBalanceBeforeEnding = await ethers.provider.getBalance(
           lottery.address
         );
