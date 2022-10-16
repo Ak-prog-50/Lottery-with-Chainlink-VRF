@@ -49,7 +49,7 @@ const config: HardhatUserConfig = {
     },
     truffle: {
       url: "http://localhost:24012/rpc",
-      chainId: 4
+      chainId: 80001
     },
     localhost: {
       chainId: 31337
@@ -66,7 +66,12 @@ const config: HardhatUserConfig = {
     noColors: true
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
+      polygon: process.env.POLYGONSCAN_API_KEY,
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+    }
   },
   namedAccounts: {
     deployer: {

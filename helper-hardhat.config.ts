@@ -68,7 +68,7 @@ export const networkConfig: NetworkConfigMap = {
   5: {
     name: "goerli",
     linkToken: "0x326c977e6efc84e512bb9c30f76e30c160ed06fb",
-    fundAmount: BigNumber.from("0"),
+    fundAmount: BigNumber.from("1000"),
   },
   137: {
     name: "polygon",
@@ -79,6 +79,14 @@ export const networkConfig: NetworkConfigMap = {
     fee: "100000000000000",
     fundAmount: BigNumber.from("100000000000000"),
   },
+  80001 : {
+      name: "polygon",
+      linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
+      ethUsdPriceFeed: "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
+      vrfCoordinator: "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
+      fee: "1000000000000",
+      fundAmount: BigNumber.from("1000000000000")
+  }
 }
 
 export const developmentChains: string[] = ["hardhat", "localhost"]

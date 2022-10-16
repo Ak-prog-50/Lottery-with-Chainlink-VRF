@@ -18,6 +18,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deploy, log } = deployments;
 
   const chainId = hre.network.config.chainId;
+  console.log("chainId", chainId);
   if (!chainId) return;
   let subscriptionId: BigNumber;
   let vrfCoordinatorAddr: string | undefined;
@@ -72,9 +73,9 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   if (
     !developmentChains.includes(network.name) &&
-    process.env.ETHERSCAN_API_KEY
+    process.env.POLYGONSCAN_API_KEY || process.env.ETHERSCAN_API_KEY
   ) {
-    log("Verifying...");
+    log("Verifying...", process.env.POLYGONSCAN_API_KEY);
     await verify(lottery.address, args, "contracts/Lottery.sol:Lottery");
   }
 };
