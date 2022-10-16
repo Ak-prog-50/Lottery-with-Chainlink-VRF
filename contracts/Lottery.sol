@@ -22,7 +22,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     }
 
     int8 public immutable i_entranceFeeInUsd;
-    VRFCoordinatorV2Interface immutable i_vrfCoordinator; 
+    VRFCoordinatorV2Interface immutable i_vrfCoordinator;
 
     mapping(address => uint256) public s_addressToAmountDeposited;
     mapping(address => bool) public s_isParticipant;
@@ -35,7 +35,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     AggregatorV3Interface internal s_priceFeed;
 
     bytes32 constant KEY_HASH =
-        0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc; //* gas lane key hash (check docs for more info)
+        0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f; //* gas lane key hash (check docs for more info)
     uint32 constant CALLBACK_GAS_LIMIT = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
     uint16 constant REQUEST_CONFIRMATIONS = 3; //* number of confirmations VRF node waits for before fulfilling request
     uint32 constant NUM_WORDS = 1; //* number of words(uint256 values) in the random word request
@@ -136,6 +136,11 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
 
         s_recentWinner = payable(s_participants[indexOfWinner]); // participants array is not payable.
 
+        // This will transfer 20 percent to the owner.
+        (bool sucessOwnerCut, ) = payable(owner()).call{
+            value: address(this).balance * 20 / 100
+        }("");
+        if (!sucessOwnerCut) revert Lottery__TransferFailed();
         (bool success, ) = s_recentWinner.call{value: address(this).balance}(
             ""
         ); //* Calls to_recentWinner(an account contract in etheruem) from the lottery contract without specifying function bytes data.
