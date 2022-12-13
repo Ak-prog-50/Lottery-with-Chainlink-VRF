@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 error Lottery__TransferFailed();
 error Lottery__SendMoreToEnterLottery();
 error Lottery__LotteryNotOpen();
-error Lottery__ParticipantLimitExceeded();
+error Lottery__ParticipantCountIsLow();
 
 // error Lottery__NotTheOwner();
 
@@ -29,7 +29,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     address[] public s_participants;
     address payable public s_recentWinner;
     uint256 public s_requestId;
-    uint256 public s_maxParticpantsLimit;
+    uint256 public s_minParticpantsLimit;
     uint256 public s_lotteryEndTimestamp;
     uint32 public s_lotteryDuration = 24 hours; // returns 86400 seconds
     uint64 s_subscriptionId;
@@ -47,17 +47,17 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     event PlayerEnteredLottery(address _participant, uint256 _amountDeposited);
 
     constructor(
+        uint256 _minParticpantsLimit,
         address _priceFeed,
         address _vrfCoordinator,
         int8 _entranceFeeInUsd,
-        uint64 _subscriptionId,
-        uint256 _maxParticpantsLimit
+        uint64 _subscriptionId
     ) VRFConsumerBaseV2(_vrfCoordinator) {
         s_entranceFeeInUsd = _entranceFeeInUsd;
         s_priceFeed = AggregatorV3Interface(_priceFeed);
         s_lotteryState = LotteryState.CLOSED; //* default lottery state is closed
         s_subscriptionId = _subscriptionId;
-        s_maxParticpantsLimit = _maxParticpantsLimit;
+        s_minParticpantsLimit = _minParticpantsLimit;
         i_vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinator);
     }
 
@@ -84,7 +84,8 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
 
     function endLottery() external onlyOwner checkOpened {
         //TODO: check if the time is right???
-        require(s_participants.length > 0, "No participants");
+        if (s_participants.length < s_minParticpantsLimit)
+            revert Lottery__ParticipantCountIsLow();
 
         s_lotteryState = LotteryState.SELECTING_WINNER;
         // * requestRandomWords() function returns a uint256 value
@@ -121,8 +122,9 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         if (msg.value < getEntranceFee())
             revert Lottery__SendMoreToEnterLottery();
 
-        if (s_participants.length >= s_maxParticpantsLimit)
-            revert Lottery__ParticipantLimitExceeded();
+        if (s_participants.length < s_minParticpantsLimit)
+            revert Lottery__ParticipantCountIsLow();
+        // TODO: safeguard for double deposits???
         if (!s_isParticipant[msg.sender]) {
             s_participants.push(msg.sender);
         }
@@ -135,8 +137,8 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         return uint256(s_participants.length);
     }
 
-    function setMaxParticipantsLimit(uint256 _newLimit) public onlyOwner {
-        s_maxParticpantsLimit = _newLimit;
+    function setMinParticipantsLimit(uint256 _newLimit) public onlyOwner {
+        s_minParticpantsLimit = _newLimit;
     }
 
     function fulfillRandomWords(
@@ -144,6 +146,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         uint256[] memory _randomWords
     ) internal override {
         // * this function is for the callback from the VRF node. Can be called only from the VRF node. (check docs for more info. (request response cycle))
+        // TODO: error messages for require statements or convert to revert statements???.
         require(s_lotteryState == LotteryState.SELECTING_WINNER);
         require(_randomWords[0] > 0);
         require(_randomWords.length > 0);
