@@ -10,7 +10,7 @@ import { BigNumber } from "ethers";
 import { verify } from "../helper-functions";
 import { lotteryConfig } from "../helper-hardhat.config";
 
-const { entranceFeeInUSD, maxParticipantsLimit} = lotteryConfig;
+const { entranceFeeInUSD, minParticipantsLimit} = lotteryConfig;
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   const { deployments, getNamedAccounts } = hre;
@@ -57,11 +57,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 
   console.log("\n\tSubscriptionId", subscriptionId, subscriptionId._hex, "\n");
   const args = [
+    minParticipantsLimit,
     priceFeedAddr,
     vrfCoordinatorAddr,
     entranceFeeInUSD,
     subscriptionId,
-    maxParticipantsLimit,
   ];
 
   const lottery = await deploy("Lottery", {
@@ -75,7 +75,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     !developmentChains.includes(network.name) &&
     process.env.POLYGONSCAN_API_KEY || process.env.ETHERSCAN_API_KEY
   ) {
-    log("Verifying...", process.env.POLYGONSCAN_API_KEY);
+    log("Verifying...");
     await verify(lottery.address, args, "contracts/Lottery.sol:Lottery");
   }
 };

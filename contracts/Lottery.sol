@@ -122,8 +122,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         if (msg.value < getEntranceFee())
             revert Lottery__SendMoreToEnterLottery();
 
-        if (s_participants.length < s_minParticpantsLimit)
-            revert Lottery__ParticipantCountIsLow();
         // TODO: safeguard for double deposits???
         if (!s_isParticipant[msg.sender]) {
             s_participants.push(msg.sender);

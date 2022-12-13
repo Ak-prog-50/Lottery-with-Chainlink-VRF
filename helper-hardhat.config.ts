@@ -93,5 +93,5 @@ export const developmentChains: string[] = ["hardhat", "localhost"]
 export const VERIFICATION_BLOCK_CONFIRMATIONS = 6
 export const lotteryConfig = {
   entranceFeeInUSD : 50,
-  maxParticipantsLimit: 3
+  minParticipantsLimit: 3
 }
