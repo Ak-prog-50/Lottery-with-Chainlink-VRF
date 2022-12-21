@@ -21,7 +21,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         SELECTING_WINNER
     }
 
-    int8 public s_entranceFeeInUsd;
+    int256 public s_entranceFeeInUsd; // with 8 decimal points. 0.5 USD = 50000000
     VRFCoordinatorV2Interface immutable i_vrfCoordinator;
 
     mapping(address => uint256) public s_addressToAmountDeposited;
@@ -50,10 +50,10 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         uint256 _minParticpantsLimit,
         address _priceFeed,
         address _vrfCoordinator,
-        int8 _entranceFeeInUsd,
+        int256 _entranceFeeInUsdinFixedPoint,
         uint64 _subscriptionId
     ) VRFConsumerBaseV2(_vrfCoordinator) {
-        s_entranceFeeInUsd = _entranceFeeInUsd;
+        s_entranceFeeInUsd = _entranceFeeInUsdinFixedPoint;
         s_priceFeed = AggregatorV3Interface(_priceFeed);
         s_lotteryState = LotteryState.CLOSED; //* default lottery state is closed
         s_subscriptionId = _subscriptionId;
@@ -86,8 +86,9 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         s_lotteryDuration = _durationInSecs;
     }
 
-    function setEntranceFee(int8 _entranceFeeInUsd) public onlyOwner {
-        s_entranceFeeInUsd = _entranceFeeInUsd;
+    // @notice - entranceFeeInUsd should be in fixed point format with 8 digits of precision.    
+    function setEntranceFee(int256 _entranceFeeInUsdinFixedPoint) public onlyOwner {
+        s_entranceFeeInUsd = _entranceFeeInUsdinFixedPoint;
     }
 
     function startLottery() external onlyOwner {
@@ -114,20 +115,20 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
 
     function getEntranceFee() public view returns (uint256) {
         (, int256 price, , , ) = s_priceFeed.latestRoundData(); // * returns Matic/USD rate with 8 decimal places as answer
-        uint256 entranceFeeParsed = uint256(uint8(s_entranceFeeInUsd));
+        uint256 entranceFeeParsed = uint256(s_entranceFeeInUsd);
         // entranceFeeParsed = 11 USD; price = 0.8 USD; ( Matic / USD )
         // 0.8 USD is the 1 matic representation in usd.
         // Divide 11 by 0.8 USD to get how much matic is in 11 usd.
 
-        // multiply 11 by 10^8 to match the 8 decimal places of the price.
+        // entrance fee and price is represented in fixed point format with 8 digits of precision.
         // Technically, 11*10^8 / uint(price) is equal to 11 / 0.8 USD.
         // And that's the amount of matic inside 11 usd. ( costToEnterInMatic )
         // Then can convert that matic amount to wei by multiplying by 10^18.
 
-        // But due to solidity math limitations, we multiply 11 by 10^8 and 10^18 to get the correct result.
+        // But due to solidity math limitations, we multiply entranceFeeWith8Decimals by 10^18 to get the correct result.
         // Otherwise trying to divide (11 * 10^8) by (0.8 USD * 10^8) will result in 0.
 
-        uint256 costToEnterInWei = (entranceFeeParsed * 10 ** 8 * 10 ** 18) /
+        uint256 costToEnterInWei = (entranceFeeParsed * 10 ** 18) /
             uint256(price);
         return costToEnterInWei;
     }
