@@ -97,8 +97,8 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         s_lotteryState = LotteryState.OPEN;
     }
 
-    function endLottery() external onlyOwner checkOpened {
-        //TODO: check if the time is right???
+    function endLottery() external onlyOwner {
+        //TODO: check if the time stamp is right???
         if (s_participants.length < s_minParticpantsLimit)
             revert Lottery__ParticipantCountIsLow();
 
