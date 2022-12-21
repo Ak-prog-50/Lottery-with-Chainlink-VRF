@@ -34,7 +34,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     uint32 public s_lotteryDuration = 24 hours; // returns 86400 seconds
     uint64 s_subscriptionId;
     LotteryState public s_lotteryState;
-    AggregatorV3Interface internal s_priceFeed;
+    AggregatorV3Interface public s_priceFeed;
 
     // TODO: setters for these???
     bytes32 constant KEY_HASH =
@@ -66,6 +66,20 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         if (s_lotteryState != LotteryState.OPEN)
             revert Lottery__LotteryNotOpen();
         _;
+    }
+
+    function getPriceFeedName() external view returns (string memory) {
+        return s_priceFeed.description();
+    }
+
+    function getLatestRoundData() external view returns (
+      uint80 roundId,
+      int256 answer,
+      uint256 startedAt,
+      uint256 updatedAt,
+      uint80 answeredInRound
+    ) {
+        return s_priceFeed.latestRoundData();
     }
 
     function setLotteryDuration(uint32 _durationInSecs) public onlyOwner {
@@ -161,7 +175,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         if (!sucessOwnerCut) revert Lottery__TransferFailed();
         (bool success, ) = s_recentWinner.call{value: address(this).balance}(
             ""
-        );
+        ); //* Calls to_recentWinner( an EOA contract in polygon ) from the lottery contract without specifying function bytes data.
         if (!success) revert Lottery__TransferFailed();
 
         for (uint256 i = 0; i < s_participants.length; i++) {
