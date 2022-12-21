@@ -22,7 +22,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     }
 
     int256 public s_entranceFeeInUsd; // with 8 decimal points. 0.5 USD = 50000000
-    VRFCoordinatorV2Interface immutable i_vrfCoordinator;
+    VRFCoordinatorV2Interface immutable public i_vrfCoordinator;
 
     mapping(address => uint256) public s_addressToAmountDeposited;
     mapping(address => bool) public s_isParticipant;
@@ -32,7 +32,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     uint256 public s_minParticpantsLimit;
     uint256 public s_lotteryEndTimestamp;
     uint32 public s_lotteryDuration = 24 hours; // returns 86400 seconds
-    uint64 s_subscriptionId;
+    uint64 public s_subscriptionId;
     LotteryState public s_lotteryState;
     AggregatorV3Interface public s_priceFeed;
 
