@@ -13,6 +13,7 @@ type NetworkConfigItem = {
   oracle?: string
   jobId?: string
   ethUsdPriceFeed?: string
+  maticUsdPriceFeed?: string
 }
 
 type NetworkConfigMap = {
@@ -74,6 +75,7 @@ export const networkConfig: NetworkConfigMap = {
     name: "polygon",
     linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
     ethUsdPriceFeed: "0xF9680D99D6C9589e2a93a78A04A279e509205945",
+    maticUsdPriceFeed: "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0",
     oracle: "0x0a31078cd57d23bf9e8e8f1ba78356ca2090569e",
     jobId: "12b86114fa9e46bab3ca436f88e1a912",
     fee: "100000000000000",
@@ -83,6 +85,7 @@ export const networkConfig: NetworkConfigMap = {
       name: "polygon",
       linkToken: "0xb0897686c545045afc77cf20ec7a532e3120e0f1",
       ethUsdPriceFeed: "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
+      maticUsdPriceFeed: "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada",
       vrfCoordinator: "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
       fee: "1000000000000",
       fundAmount: BigNumber.from("1000000000000")

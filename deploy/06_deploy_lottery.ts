@@ -46,7 +46,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     priceFeedAddr = priceFeed.address;
     vrfCoordinatorAddr = VRFCoordinatorV2Mock.address;
   } else {
-    (priceFeedAddr = networkConfig[chainId].ethUsdPriceFeed),
+    (priceFeedAddr = networkConfig[chainId].maticUsdPriceFeed),
     (vrfCoordinatorAddr = networkConfig[chainId].vrfCoordinator);
     subscriptionId = BigNumber.from(process.env.VRF_SUBSCRIPTION_ID);
   }

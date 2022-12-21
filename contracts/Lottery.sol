@@ -21,7 +21,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         SELECTING_WINNER
     }
 
-    int8 public s_entranceFeeInUsd; // 50 USD
+    int8 public s_entranceFeeInUsd;
     VRFCoordinatorV2Interface immutable i_vrfCoordinator;
 
     mapping(address => uint256) public s_addressToAmountDeposited;
@@ -99,19 +99,19 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     }
 
     function getEntranceFee() public view returns (uint256) {
-        (, int256 price, , , ) = s_priceFeed.latestRoundData(); // * returns ETH/USD rate with 8 decimal places as answer
+        (, int256 price, , , ) = s_priceFeed.latestRoundData(); // * returns Matic/USD rate with 8 decimal places as answer
         uint256 entranceFeeParsed = uint256(uint8(s_entranceFeeInUsd));
-        // entranceFeeParsed = 50; price = 1200;
-        // 1200 is the 1 eth representation in usd.
-        // Divide 50 by 1200 to get how much eth is in 50 usd.
+        // entranceFeeParsed = 11 USD; price = 0.8 USD; ( Matic / USD )
+        // 0.8 USD is the 1 matic representation in usd.
+        // Divide 11 by 0.8 USD to get how much matic is in 11 usd.
 
-        // multiply 50 by 10^8 to match the 8 decimal places of the price.
-        // Technically, 50*10^8 / uint(price) is equal to 50 / 1200.
-        // And that's the amount of eth inside 50 usd. ( Cost to enter in eth = 0.04166666 )
-        // Then can convert that eth amount to wei by multiplying by 10^18.
+        // multiply 11 by 10^8 to match the 8 decimal places of the price.
+        // Technically, 11*10^8 / uint(price) is equal to 11 / 0.8 USD.
+        // And that's the amount of matic inside 11 usd. ( costToEnterInMatic )
+        // Then can convert that matic amount to wei by multiplying by 10^18.
 
-        // But due to solidity math limitations, we multiply 50 by 10^8 and 10^18 to get the correct result.
-        // Otherwise trying to divide (50 * 10^8) by (1200 * 10^8) will result in 0.
+        // But due to solidity math limitations, we multiply 11 by 10^8 and 10^18 to get the correct result.
+        // Otherwise trying to divide (11 * 10^8) by (0.8 USD * 10^8) will result in 0.
 
         uint256 costToEnterInWei = (entranceFeeParsed * 10 ** 8 * 10 ** 18) /
             uint256(price);
@@ -161,7 +161,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         if (!sucessOwnerCut) revert Lottery__TransferFailed();
         (bool success, ) = s_recentWinner.call{value: address(this).balance}(
             ""
-        ); //* Calls to_recentWinner(an account contract in etheruem) from the lottery contract without specifying function bytes data.
+        );
         if (!success) revert Lottery__TransferFailed();
 
         for (uint256 i = 0; i < s_participants.length; i++) {
