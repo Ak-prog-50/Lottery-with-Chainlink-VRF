@@ -22,6 +22,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     }
 
     int256 public s_entranceFeeInUsd; // with 8 decimal points. 0.5 USD = 50000000
+    // TODO: check if we need to make this immutable
     VRFCoordinatorV2Interface immutable public i_vrfCoordinator;
 
     mapping(address => uint256) public s_addressToAmountDeposited;
@@ -36,11 +37,10 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     LotteryState public s_lotteryState;
     AggregatorV3Interface public s_priceFeed;
 
-    // TODO: setters for these???
-    bytes32 constant KEY_HASH =
-        0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f; //* gas lane key hash (check docs for more info)
-    uint32 constant CALLBACK_GAS_LIMIT = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
-    uint16 constant REQUEST_CONFIRMATIONS = 3; //* number of confirmations VRF node waits for before fulfilling request
+    bytes32 s_keyHash =
+        0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f; //* gas lane key hash (check docs for more info). This is 500 gwei key hash in mumbai testnet.
+    uint32 s_callbackGasLimit = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
+    uint16 s_requestConfirmations = 3; //* number of confirmations VRF node waits for before fulfilling request
     uint32 constant NUM_WORDS = 1; //* number of words(uint256 values) in the random word request
 
     event WinnerGotMoney(address _recentWinner, uint256[] _randomWords);
@@ -82,6 +82,22 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         return s_priceFeed.latestRoundData();
     }
 
+    function setKeyHash(bytes32 _keyHash) public onlyOwner {
+        s_keyHash = _keyHash;
+    }
+
+    function setSubscriptionId(uint64 _subscriptionId) public onlyOwner {
+        s_subscriptionId = _subscriptionId;
+    }
+
+    function setCallbakGasLimit(uint32 _callbackGasLimit) public onlyOwner {
+        s_callbackGasLimit = _callbackGasLimit;
+    }
+
+    function setRequestConfirmations(uint16 _requestConfirmations) public onlyOwner {
+        s_requestConfirmations = _requestConfirmations;
+    }
+
     function setLotteryDuration(uint32 _durationInSecs) public onlyOwner {
         s_lotteryDuration = _durationInSecs;
     }
@@ -105,10 +121,10 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         s_lotteryState = LotteryState.SELECTING_WINNER;
         // * requestRandomWords() function returns a uint256 value
         s_requestId = i_vrfCoordinator.requestRandomWords(
-            KEY_HASH,
+            s_keyHash,
             s_subscriptionId,
-            REQUEST_CONFIRMATIONS,
-            CALLBACK_GAS_LIMIT,
+            s_requestConfirmations,
+            s_callbackGasLimit,
             NUM_WORDS
         );
     }
@@ -187,4 +203,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         s_lotteryState = LotteryState.CLOSED;
         emit WinnerGotMoney(s_recentWinner, _randomWords);
     }
+
+    // TODO: check if we need disperse funds function???
 }
