@@ -39,7 +39,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
 
     bytes32 s_keyHash =
         0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f; //* gas lane key hash (check docs for more info). This is 500 gwei key hash in mumbai testnet.
-    uint32 s_callbackGasLimit = 100000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
+    uint32 s_callbackGasLimit = 1000000; //* gas limit when VRF callback rawFulfillRandomWords func in VRFConsumerBaseV2.
     uint16 s_requestConfirmations = 3; //* number of confirmations VRF node waits for before fulfilling request
     uint32 constant NUM_WORDS = 1; //* number of words(uint256 values) in the random word request
 
