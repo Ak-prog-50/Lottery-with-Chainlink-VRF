@@ -204,5 +204,17 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         emit WinnerGotMoney(s_recentWinner, _randomWords);
     }
 
-    // TODO: check if we need disperse funds function???
+    //TODO: check roundId and if recentWinner got paid???
+    /// @notice - This function is used as a backup in case the VRF node fails to call the fulfillRandomWords() function.
+    function disperseFunds() public onlyOwner {
+        // This will transfer 20 percent to the owner.
+        (bool sucessOwnerCut, ) = payable(owner()).call{
+            value: (address(this).balance * 20) / 100
+        }("");
+        if (!sucessOwnerCut) revert Lottery__TransferFailed();
+        (bool success, ) = s_recentWinner.call{value: address(this).balance}(
+            ""
+        );
+        if (!success) revert Lottery__TransferFailed();
+    }
 }

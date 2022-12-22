@@ -4,6 +4,8 @@ import { developmentChains } from "../../helper-hardhat.config";
 import { Lottery, VRFCoordinatorV2Mock } from "../../typechain";
 import { BigNumber } from "ethers";
 
+// TODO: add tests for entranceFee calc, endLottery, disperseFunds, enter, security checks, etc.
+
 !developmentChains.includes(network.name)
   ? describe.skip
   : describe("Lottery Unit Tests", function () {
@@ -57,7 +59,7 @@ import { BigNumber } from "ethers";
         );
       });
 
-      it("Should successfully request random words and get a result", async () => {
+      it("Should successfully request random words and select a winner", async () => {
         const [, , guy2] = signers;
         const lotteryBalanceBeforeEnding = await ethers.provider.getBalance(
           lottery.address
@@ -101,8 +103,9 @@ import { BigNumber } from "ethers";
           lottery.address
         );
         assert(lotteryBalanceAfterEnding.toString() === "0");
+        const winnersCut = (lotteryBalanceBeforeEnding.div(100)).mul(80);
         expect(winnerBalanceAfterEnding).to.equal(
-          winnerBalanceBeforeEnding.add(lotteryBalanceBeforeEnding)
+          winnerBalanceBeforeEnding.add(winnersCut)
         );
         console.log("\n\n");
         console.log(
@@ -124,35 +127,15 @@ import { BigNumber } from "ethers";
         console.log("\n");
       });
 
-      it("Should not be able to enter after particpant limit exceeds", async () => {
-        const guy3 = signers[3];
-        await expect(
-          lottery.connect(guy3).enter({ value: entranceFee })
-        ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
-      });
-
-      it("Should be able to change the maxParticiapntsLimit", async () => {
-        const tx = await lottery.setMaxParticipantsLimit(5);
+      it("Should be able to change the minParticipantsLimit", async () => {
+        const tx = await lottery.setMinParticipantsLimit(5);
         await tx.wait(1);
-        expect(await lottery.s_maxParticpantsLimit()).to.equal(5);
-
-        const guy3 = signers[3];
-        const guy4 = signers[4];
-        await lottery.connect(guy3).enter({ value: entranceFee });
-        await lottery.connect(guy4).enter({ value: entranceFee });
-
-        const guy5 = signers[5];
-        await expect(
-          lottery.connect(guy5).enter({ value: entranceFee })
-        ).to.be.revertedWith("Lottery__ParticipantLimitExceeded");
+        expect(await lottery.s_minParticpantsLimit()).to.equal(5);
       });
 
       it("Should emit event when a particiapnt enters", async () => {
-        const currentLimit = await lottery.s_maxParticpantsLimit();
-        const newLimit = currentLimit.add(1).toNumber();
-        const newGuy = signers[newLimit];
-        const tx = await lottery.setMaxParticipantsLimit(newLimit);
-        await tx.wait(1);
+        const currentParticipantsLength = await lottery.getParticipantsLen();
+        const newGuy = signers[currentParticipantsLength.toNumber()];
 
         await expect(
           lottery.connect(newGuy).enter({ value: entranceFee })
@@ -160,17 +143,12 @@ import { BigNumber } from "ethers";
       });
 
       it("Should avoid duplicating elements in participants array", async () => {
-        const newLimit = (await lottery.s_maxParticpantsLimit())
-          .add(1)
-          .toNumber();
-        await (await lottery.setMaxParticipantsLimit(newLimit)).wait(1);
-
         const { deployer } = await getNamedAccounts();
-        const participantsLenBef = lottery.s_participants.length;
+        const participantsLenBefore = lottery.s_participants.length;
         assert(await lottery.s_isParticipant(deployer));
         await lottery.enter({ value: entranceFee });
-        const participantsLenAft = lottery.s_participants.length;
-        assert(participantsLenAft === participantsLenBef);
+        const participantsLenAfter = lottery.s_participants.length;
+        assert(participantsLenAfter === participantsLenBefore);
       });
 
       it("Should reset arrays and relevant mappings when ending lottery", async () => {
@@ -222,4 +200,41 @@ import { BigNumber } from "ethers";
         assert((await lottery.getParticipantsLen()).toNumber() === 1);
         assert((await lottery.s_isParticipant(deployer)) === true);
       });
+
+      it("disperseFunds should work as a backup function", async () => {
+        const lotteryBalanceBeforeEnding = await ethers.provider.getBalance(
+          lottery.address
+        );
+        const { deployer } = await getNamedAccounts();
+        const ownerBalanceBeforeEnding = await ethers.provider.getBalance(
+          deployer
+        );
+        const winnerBalanceBeforeEnding = await ethers.provider.getBalance(
+          await lottery.s_recentWinner()
+        );
+        
+        (await lottery.disperseFunds()).wait();
+
+        const ownerBalanceAfterEnding = await ethers.provider.getBalance(
+          deployer
+        );
+        const winnerBalanceAfterEnding = await ethers.provider.getBalance(
+          await lottery.s_recentWinner()
+        );
+        const lotteryBalanceAfterEnding = await ethers.provider.getBalance(
+          lottery.address
+        );
+        assert(lotteryBalanceAfterEnding.toString() === "0");
+        const winnersCut = (lotteryBalanceBeforeEnding.div(100)).mul(80);
+
+        expect(winnerBalanceAfterEnding).to.equal(
+          winnerBalanceBeforeEnding.add(winnersCut)
+        );
+
+        console.log("winnersCut", ethers.utils.formatEther(winnersCut.toString()));
+        console.log("ownerBalanceBeforeEnding", ethers.utils.formatEther(ownerBalanceBeforeEnding.toString()));
+        console.log("ownerBalanceAfterEnding", ethers.utils.formatEther(ownerBalanceAfterEnding.toString()));
+
+   
+      })
     });
